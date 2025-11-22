@@ -1,102 +1,91 @@
 
 import { User, AdminUser, AdminRole } from './types';
 
-// --- CẤU HÌNH KẾT NỐI (QUAN TRỌNG) ---
+// Storage Keys
+const STORAGE_KEY_USERS = 'triVietUsers';
+const STORAGE_KEY_ADMINS = 'triVietAdmins';
 
-// 1. BẬT CHẾ ĐỘ SERVER:
-//    - true: Kết nối với Server (Node.js).
-//    - false: Chạy một mình (dùng localStorage).
-const USE_BACKEND = false;
-
-// 2. KẾT NỐI INTERNET (DÙNG KHI KHÁC WIFI):
-//    Nếu bạn dùng Ngrok hoặc thuê server, hãy dán link vào đây.
-//    Ví dụ: const PUBLIC_SERVER_URL = 'https://a1b2-c3d4.ngrok-free.app';
-//    Nếu để rỗng '', App sẽ tự động tìm server trong mạng LAN (cùng WiFi).
-const PUBLIC_SERVER_URL = '' as string; 
-
-// ---------------------------------------
-
-const getApiUrl = () => {
-    // Ưu tiên dùng Link Public nếu người dùng đã điền
-    if (PUBLIC_SERVER_URL && PUBLIC_SERVER_URL.trim() !== '') {
-        // Xóa dấu / ở cuối nếu có để tránh lỗi
-        return PUBLIC_SERVER_URL.replace(/\/$/, '') + '/api';
-    }
-
-    // Nếu không có link public, tự động dò tìm trong mạng LAN
-    if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        // Nếu đang chạy trên server thật (không có cổng 3000/5173), thì API thường nằm cùng domain
-        if (!window.location.port) {
-             return '/api';
-        }
-        // Mặc định mạng LAN: cổng 3001
-        return `http://${hostname}:3001/api`;
-    }
-    return 'http://localhost:3001/api';
+// Default Super Admin credentials for initial access
+const DEFAULT_ADMIN: AdminUser = {
+    username: 'admin',
+    password: '123', // In a real app, this should be changed immediately
+    role: AdminRole.SUPER_ADMIN,
+    lastLogin: 0,
+    logs: []
 };
 
-const API_URL = getApiUrl();
+// --- Local Storage Helpers ---
 
-// --- LOCAL STORAGE HELPERS (Fallback) ---
 const readLocalUsers = (): User[] => {
+    if (typeof window === 'undefined') return [];
     try {
-        const savedUsers = localStorage.getItem('triVietUsers');
+        const savedUsers = localStorage.getItem(STORAGE_KEY_USERS);
         return savedUsers ? JSON.parse(savedUsers) : [];
-    } catch (e) { return []; }
+    } catch (e) {
+        console.error("Failed to read users from storage", e);
+        return [];
+    }
 };
 
 const saveLocalUsers = (users: User[]) => {
-    localStorage.setItem('triVietUsers', JSON.stringify(users));
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+    } catch (e) {
+        console.error("Failed to save users to storage", e);
+    }
 };
 
 const readLocalAdmins = (): AdminUser[] => {
+    if (typeof window === 'undefined') return [DEFAULT_ADMIN];
     try {
-        const savedAdmins = localStorage.getItem('triVietAdmins');
-        if (savedAdmins) return JSON.parse(savedAdmins);
-    } catch (e) {}
-    return [{
-        username: 'quantriviencaocap',
-        password: 'deptrai',
-        role: AdminRole.SUPER_ADMIN,
-        lastLogin: 0,
-        logs: []
-    }];
+        const savedAdmins = localStorage.getItem(STORAGE_KEY_ADMINS);
+        if (savedAdmins) {
+            const parsed = JSON.parse(savedAdmins);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.error("Failed to read admins from storage", e);
+    }
+    // Return default admin if none found
+    return [DEFAULT_ADMIN];
 };
 
 const saveLocalAdmins = (admins: AdminUser[]) => {
-    localStorage.setItem('triVietAdmins', JSON.stringify(admins));
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(STORAGE_KEY_ADMINS, JSON.stringify(admins));
+    } catch (e) {
+        console.error("Failed to save admins to storage", e);
+    }
 };
 
-// --- API FUNCTIONS ---
+// --- API Implementation ---
 
 export const api = {
+    /**
+     * Fetch all users.
+     * Simulates network latency.
+     */
     getUsers: async (): Promise<User[]> => {
-        if (USE_BACKEND) {
-            try {
-                const res = await fetch(`${API_URL}/users`);
-                if (res.ok) return await res.json();
-            } catch (e) { console.error("Backend fetch failed, falling back to local", e); }
-        }
+        await new Promise(resolve => setTimeout(resolve, 200));
         return readLocalUsers();
     },
 
+    /**
+     * Register a new user.
+     * Returns true if successful, false if username exists.
+     */
     registerUser: async (username: string, pass: string): Promise<boolean> => {
-        if (USE_BACKEND) {
-            try {
-                const res = await fetch(`${API_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password: pass })
-                });
-                const data = await res.json();
-                return data.success;
-            } catch (e) { return false; }
+        await new Promise(resolve => setTimeout(resolve, 400));
+        const users = readLocalUsers();
+        
+        if (users.some(u => u.username === username)) {
+            return false;
         }
         
-        // Local Fallback
-        const users = readLocalUsers();
-        if (users.some(u => u.username === username)) return false;
         const newUser: User = {
             username,
             password: pass,
@@ -109,51 +98,33 @@ export const api = {
             lastActivity: 'Registered',
             isDeleted: false
         };
+        
         saveLocalUsers([...users, newUser]);
         return true;
     },
 
+    /**
+     * Update user data.
+     */
     updateUser: async (username: string, updates: Partial<User>): Promise<void> => {
-        if (USE_BACKEND) {
-            try {
-                await fetch(`${API_URL}/users/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, updates })
-                });
-                return;
-            } catch (e) {}
-        }
-
-        // Local Fallback
+        // Immediate update for UI responsiveness
         const users = readLocalUsers();
         const newUsers = users.map(u => u.username === username ? { ...u, ...updates } : u);
         saveLocalUsers(newUsers);
     },
 
+    /**
+     * Fetch all admins.
+     */
     getAdmins: async (): Promise<AdminUser[]> => {
-        if (USE_BACKEND) {
-            try {
-                const res = await fetch(`${API_URL}/admins`);
-                if (res.ok) return await res.json();
-            } catch (e) {}
-        }
+        await new Promise(resolve => setTimeout(resolve, 200));
         return readLocalAdmins();
     },
 
+    /**
+     * Save entire admin list (used for updates, creates, deletes).
+     */
     saveAdmins: async (admins: AdminUser[]): Promise<void> => {
-         if (USE_BACKEND) {
-             try {
-                // Note: In a real backend, you'd have specific endpoints for specific admin actions.
-                // This is a simplified sync for the prototype.
-                await fetch(`${API_URL}/admins/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admins })
-                });
-                return;
-             } catch(e) {}
-         }
          saveLocalAdmins(admins);
     }
 };
