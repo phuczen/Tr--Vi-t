@@ -16,13 +16,18 @@ const DEFAULT_ADMIN: AdminUser = {
 
 // --- Centralized AI Instance ---
 let apiKey = '';
+
+// The define plugin in vite.config.ts replaces 'process.env.API_KEY' with the actual string.
+// We use a try-catch block as a safety net for environments where replacement might fail.
 try {
-    // Safely attempt to access process.env.API_KEY. 
-    // This allows Vite/Webpack to replace it at build time if configured, 
-    // while preventing a ReferenceError if process is not defined in the browser.
     apiKey = process.env.API_KEY || '';
 } catch (e) {
-    console.warn("process.env.API_KEY is not defined");
+    console.warn("Failed to access process.env.API_KEY. Ensure it is set in Vercel settings.");
+}
+
+// Log warning if key is empty to help debugging in browser console
+if (!apiKey) {
+    console.error("API Key is missing! Please set API_KEY in your Vercel Project Settings.");
 }
 
 export const ai = new GoogleGenAI({ apiKey });

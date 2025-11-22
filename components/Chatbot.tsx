@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Chat, GenerateContentResponse, Part } from '@google/genai';
 import { useApp } from '../App';
@@ -96,11 +95,13 @@ const Chatbot: React.FC = () => {
         });
         setChat(newChat);
 
-        const initialMessage: ChatMessage = {
-            role: 'model',
-            text: t('teacher_chatbot_greeting')
-        };
-        setMessages([initialMessage]);
+        // Only add greeting if messages are empty
+        setMessages(prev => {
+            if (prev.length === 0) {
+                return [{ role: 'model', text: t('teacher_chatbot_greeting') }];
+            }
+            return prev;
+        });
     }, [language, t, dialect]);
     
     // Setup for SpeechRecognition API
@@ -235,11 +236,16 @@ const Chatbot: React.FC = () => {
         } catch (error: any) {
             console.error("Chat error:", error);
             let errorText = "Sorry, an error occurred. Please try again.";
-            if (error.message?.includes('safety') || error.message?.includes('blocked') || error.toString().includes('SAFETY')) {
+            
+            // Provide more specific error if API key is likely the issue
+            if (error.message?.includes('400') || error.message?.includes('API key')) {
+                errorText = "**API Connection Error:** Unable to connect to Google Gemini. Please check if the `API_KEY` is correctly configured in your Vercel Project Settings.";
+            } else if (error.message?.includes('safety') || error.message?.includes('blocked') || error.toString().includes('SAFETY')) {
                 errorText = t('unsafe_content_error');
                 // Trigger mild violation for general safety blocks
                 handleViolation('mild');
             }
+            
             const errorMessage: ChatMessage = { role: 'model', text: errorText };
             setMessages(prev => [...prev, errorMessage]);
         } finally {

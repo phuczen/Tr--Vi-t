@@ -229,7 +229,10 @@ const Summarizer: React.FC = () => {
         } catch (e: any) {
             console.error("Error generating summary:", e);
             let errorMsg = "Sorry, an error occurred while generating the summary. The content might be unsupported or an API error occurred. Please try again.";
-            if (e.message?.includes('safety') || e.message?.includes('blocked') || e.toString().includes('SAFETY')) {
+            
+            if (e.message?.includes('400') || e.message?.includes('API key')) {
+                errorMsg = "API Connection Error: Invalid or missing API Key. Check Vercel settings.";
+            } else if (e.message?.includes('safety') || e.message?.includes('blocked') || e.toString().includes('SAFETY')) {
                 errorMsg = t('unsafe_content_error');
                 handleViolation('mild');
             }
@@ -279,7 +282,7 @@ const Summarizer: React.FC = () => {
                         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
                     </div>
                 ) : error ? (
-                    <div className="flex items-center justify-center h-full text-red-600 p-4 text-center">{error}</div>
+                    <div className="flex items-center justify-center h-full text-red-600 p-4 text-center font-semibold">{error}</div>
                 ) : !mindMap && !flashcards.length ? (
                     <div className="flex items-center justify-center h-full text-slate-500">
                         {t('summary_placeholder')}
