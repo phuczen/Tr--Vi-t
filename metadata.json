@@ -1,0 +1,7 @@
+{
+  "name": "test",
+  "description": "Khai mở tri thức, định hình tương lai.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
