@@ -1,9 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, Type, Part } from "@google/genai";
+import { Type, Part } from "@google/genai";
 import { useApp } from '../App';
 import { Flashcard, MindMapNode, LibraryItemType, UserRole } from '../types';
 import MindMapComponent from './MindMap';
+import { ai } from '../api';
 
 const FlashcardComponent: React.FC<{ card: Flashcard }> = ({ card }) => {
     const [flipped, setFlipped] = useState(false);
@@ -110,8 +111,6 @@ const Summarizer: React.FC = () => {
         resetSaveButton();
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
             const fileToGenerativePart = async (file: File) => {
                 const base64EncodedDataPromise = new Promise<string>((resolve) => {
                     const reader = new FileReader();

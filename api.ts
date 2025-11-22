@@ -1,4 +1,5 @@
 
+import { GoogleGenAI } from "@google/genai";
 import { User, AdminUser, AdminRole } from './types';
 
 // Storage Keys
@@ -13,6 +14,10 @@ const DEFAULT_ADMIN: AdminUser = {
     lastLogin: 0,
     logs: []
 };
+
+// --- Centralized AI Instance ---
+// This instance is shared across the application to ensure consistent configuration.
+export const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // --- Local Storage Helpers ---
 
@@ -62,15 +67,15 @@ const saveLocalAdmins = (admins: AdminUser[]) => {
     }
 };
 
-// --- API Implementation ---
+// --- User Management API Implementation ---
 
 export const api = {
     /**
      * Fetch all users.
-     * Simulates network latency.
      */
     getUsers: async (): Promise<User[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Minimized latency for better responsiveness
+        await new Promise(resolve => setTimeout(resolve, 50));
         return readLocalUsers();
     },
 
@@ -79,7 +84,7 @@ export const api = {
      * Returns true if successful, false if username exists.
      */
     registerUser: async (username: string, pass: string): Promise<boolean> => {
-        await new Promise(resolve => setTimeout(resolve, 400));
+        await new Promise(resolve => setTimeout(resolve, 100));
         const users = readLocalUsers();
         
         if (users.some(u => u.username === username)) {
@@ -107,7 +112,6 @@ export const api = {
      * Update user data.
      */
     updateUser: async (username: string, updates: Partial<User>): Promise<void> => {
-        // Immediate update for UI responsiveness
         const users = readLocalUsers();
         const newUsers = users.map(u => u.username === username ? { ...u, ...updates } : u);
         saveLocalUsers(newUsers);
@@ -117,7 +121,7 @@ export const api = {
      * Fetch all admins.
      */
     getAdmins: async (): Promise<AdminUser[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
         return readLocalAdmins();
     },
 

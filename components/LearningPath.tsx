@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type, Modality } from '@google/genai';
+import { Type, Modality } from '@google/genai';
 import { useApp } from '../App';
 import { GRADES, SUBJECTS } from '../constants';
 import { Subject, Lesson, LibraryItemType } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
+import { ai } from '../api';
 
 // Make sure KaTeX is available on the window object
 declare global {
@@ -167,7 +168,6 @@ const LearningPath: React.FC = () => {
         setImageLoadingStates({});
         
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const prompt = `
                 Create a structured learning plan for a grade ${config.grade} student in ${t(config.subject)}. The student's learning goal is "${t(studentGoal!)}".
                 The plan must consist of 5 to 7 logically ordered, distinct lesson topics.
@@ -238,7 +238,6 @@ const LearningPath: React.FC = () => {
         imageTags.forEach(tag => { initialLoadingStates[tag] = 'loading'; });
         setImageLoadingStates(initialLoadingStates);
 
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
         // Process images one by one to handle errors gracefully
         for (let i = 0; i < imageTags.length; i++) {
@@ -294,8 +293,6 @@ const LearningPath: React.FC = () => {
         setImages({});
         setImageLoadingStates({});
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
             const responseSchema = {
                 type: Type.OBJECT,
                 properties: {

@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Part, Type } from '@google/genai';
+import { Part, Type } from '@google/genai';
 import { useApp } from '../App';
 import MarkdownRenderer from './MarkdownRenderer';
 import { LibraryItemType, UserRole } from '../types';
+import { ai } from '../api';
 
 // Make sure KaTeX is available on the window object
 declare global {
@@ -86,8 +87,6 @@ const QuestionAnalysis: React.FC = () => {
         resetSaveButton();
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
             const fileToGenerativePart = async (file: File): Promise<Part> => {
                 const base64EncodedDataPromise = new Promise<string>((resolve) => {
                     const reader = new FileReader();

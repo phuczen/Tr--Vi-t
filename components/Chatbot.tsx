@@ -1,12 +1,11 @@
 
-
-
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, Chat, GenerateContentResponse, Part } from '@google/genai';
+import { Chat, GenerateContentResponse, Part } from '@google/genai';
 import { useApp } from '../App';
 import { ChatMessage, ChatFile, Dialect, Language } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
 import { TEXTBOOKS } from '../constants';
+import { ai } from '../api';
 
 // Add this interface for compatibility
 declare global {
@@ -51,8 +50,6 @@ const Chatbot: React.FC = () => {
 
     // Initialize or re-initialize chat when dialect or language changes
     useEffect(() => {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        
         let dialectInstruction = '';
         if (language === Language.VI) {
             switch (dialect) {

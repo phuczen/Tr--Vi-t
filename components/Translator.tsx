@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Modality, Type } from '@google/genai';
+import { Modality, Type } from '@google/genai';
 import { useApp } from '../App';
 import { Language } from '../types';
 import { LANGUAGES } from '../constants';
+import { ai } from '../api';
 
 // Audio decoding helper functions
 function decode(base64: string) {
@@ -109,7 +110,6 @@ const Translator: React.FC = () => {
     setIsSpeaking(true);
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-preview-tts",
             contents: [{ parts: [{ text: translatedText }] }],
@@ -158,7 +158,6 @@ const Translator: React.FC = () => {
     setError(null); // Clear previous error
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const prompt = `
             Translate the following text from ${sourceLang} to ${targetLang}.
             Your primary task is to provide a grammatically correct and natural-sounding translation in ${targetLang}.

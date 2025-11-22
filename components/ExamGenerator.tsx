@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Part, Type, Modality } from '@google/genai';
+import { Part, Type, Modality } from '@google/genai';
 import { useApp } from '../App';
 import { GRADES, SUBJECTS, DIFFICULTY_LEVELS, TEXTBOOKS } from '../constants';
 import { Subject, UserRole, DifficultyLevel, LibraryItemType } from '../types';
 import MarkdownRenderer from './MarkdownRenderer';
+import { ai } from '../api';
 
 // Audio decoding helper functions
 function decode(base64: string) {
@@ -214,8 +215,6 @@ const ExamGenerator: React.FC = () => {
              config.topic.toLowerCase().includes('end-of-term'));
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
             if (isSpecialEnglishExam) {
                  const prompt = `
                     Act as an expert English teacher creating a final exam for a grade ${config.grade} student.

@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type, Part } from "@google/genai";
+import { Type, Part } from "@google/genai";
 import { useApp } from '../App';
 import { LibraryItemType, UserRole } from '../types';
+import { ai } from '../api';
 
 // Make sure KaTeX is available on the window object
 declare global {
@@ -138,7 +139,6 @@ const SlideGenerator: React.FC = () => {
         setError(null);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const parts: Part[] = [];
 
             if (file) {
