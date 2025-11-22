@@ -16,8 +16,20 @@ const DEFAULT_ADMIN: AdminUser = {
 };
 
 // --- Centralized AI Instance ---
-// This instance is shared across the application to ensure consistent configuration.
-export const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safely access process.env.API_KEY to prevent 'process is not defined' errors in browser environments (Vercel/Vite).
+// This allows the app to load even if the key is missing (though AI features will fail gracefully).
+const getApiKey = () => {
+    try {
+        if (typeof process !== 'undefined' && process.env) {
+            return process.env.API_KEY;
+        }
+    } catch (e) {
+        // Ignore errors accessing process
+    }
+    return '';
+};
+
+export const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 // --- Local Storage Helpers ---
 
