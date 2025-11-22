@@ -3,7 +3,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useApp } from '../App';
 import { UserRole } from '../types';
 
-// Lazy load components to reduce initial bundle size and fix "chunk larger than 500kB" warning
+// Lazy load components to split chunks
 const Summarizer = React.lazy(() => import('./Summarizer'));
 const ExamGenerator = React.lazy(() => import('./ExamGenerator'));
 const Chatbot = React.lazy(() => import('./Chatbot'));
@@ -15,8 +15,8 @@ const Library = React.lazy(() => import('./Library'));
 const SafetyGuide = React.lazy(() => import('./SafetyGuide'));
 
 const LoadingSpinner = () => (
-    <div className="flex items-center justify-center h-full min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+    <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
     </div>
 );
 
@@ -38,24 +38,18 @@ const MainLayout: React.FC = () => {
     }, [activeTab, t]);
 
     const renderContent = () => {
-        return (
-            <Suspense fallback={<LoadingSpinner />}>
-                {(() => {
-                    switch (activeTab) {
-                        case 'summarizer': return <Summarizer />;
-                        case 'exam_generator': return <ExamGenerator />;
-                        case 'ai_assistant': return <Chatbot />;
-                        case 'translator': return <Translator />;
-                        case 'slide_generator': return <SlideGenerator />;
-                        case 'learning_path': return <LearningPath />;
-                        case 'question_analysis': return <QuestionAnalysis />;
-                        case 'library': return <Library />;
-                        case 'safety_guide': return <SafetyGuide />;
-                        default: return null;
-                    }
-                })()}
-            </Suspense>
-        );
+        switch (activeTab) {
+            case 'summarizer': return <Summarizer />;
+            case 'exam_generator': return <ExamGenerator />;
+            case 'ai_assistant': return <Chatbot />;
+            case 'translator': return <Translator />;
+            case 'slide_generator': return <SlideGenerator />;
+            case 'learning_path': return <LearningPath />;
+            case 'question_analysis': return <QuestionAnalysis />;
+            case 'library': return <Library />;
+            case 'safety_guide': return <SafetyGuide />;
+            default: return null;
+        }
     };
 
     return (
@@ -108,7 +102,9 @@ const MainLayout: React.FC = () => {
             </nav>
             
             <main className="flex-grow relative z-10">
-                {renderContent()}
+                <Suspense fallback={<LoadingSpinner />}>
+                    {renderContent()}
+                </Suspense>
             </main>
         </div>
     );

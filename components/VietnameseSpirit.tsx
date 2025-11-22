@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
 import { useApp } from '../App';
 import MarkdownRenderer from './MarkdownRenderer';
+import { ai } from '../api';
 
 type Category = 'history_heroes' | 'culture_intellect';
 
@@ -21,8 +21,6 @@ const VietnameseSpirit: React.FC = () => {
         setError(null);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
             const categoryPrompt = category === 'history_heroes' 
                 ? 'Focus on the indomitable spirit, resilience, key events, heroic figures, and their significance in the nation\'s history of defending its sovereignty.' 
                 : 'Focus on cultural achievements, intellectual figures, philosophical ideas, literary works, and their impact on the nation\'s identity and development.';

@@ -16,9 +16,33 @@ const DEFAULT_ADMIN: AdminUser = {
 };
 
 // --- Centralized AI Instance ---
-// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
-// Assume this variable is pre-configured, valid, and accessible.
-export const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getApiKey = () => {
+    let key = '';
+    // Try Vite's import.meta.env first (Client-side)
+    try {
+        // @ts-ignore
+        if (import.meta.env?.VITE_API_KEY) {
+            // @ts-ignore
+            return import.meta.env.VITE_API_KEY;
+        }
+         // @ts-ignore
+        if (import.meta.env?.API_KEY) {
+             // @ts-ignore
+            return import.meta.env.API_KEY;
+        }
+    } catch (e) {}
+
+    // Fallback to process.env (Node.js / Defined by Bundler)
+    try {
+        if (typeof process !== 'undefined' && process.env?.API_KEY) {
+            return process.env.API_KEY;
+        }
+    } catch (e) {}
+    
+    return key;
+};
+
+export const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 // --- Local Storage Helpers ---
 
