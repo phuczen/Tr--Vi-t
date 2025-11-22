@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Part, Type } from '@google/genai';
 import { useApp } from '../App';
@@ -149,7 +148,7 @@ const QuestionAnalysis: React.FC = () => {
             };
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro', // Using pro for better image analysis and reasoning
+                model: 'gemini-2.5-flash', // Using pro for better image analysis and reasoning
                 contents: { parts: [uploadedFilePart, { text: prompt }] },
                 config: {
                     responseMimeType: 'application/json',

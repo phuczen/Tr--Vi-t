@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Type, Part } from "@google/genai";
 import { useApp } from '../App';
@@ -210,7 +209,7 @@ const Summarizer: React.FC = () => {
             };
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
+                model: 'gemini-2.5-flash',
                 contents: { parts },
                 config: {
                     responseMimeType: 'application/json',

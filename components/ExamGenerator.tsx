@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Part, Type, Modality } from '@google/genai';
 import { useApp } from '../App';
@@ -263,7 +262,7 @@ const ExamGenerator: React.FC = () => {
                 };
                 
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-pro',
+                    model: 'gemini-2.5-flash',
                     contents: prompt,
                     config: {
                         responseMimeType: 'application/json',
@@ -472,7 +471,7 @@ const ExamGenerator: React.FC = () => {
             };
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
+                model: 'gemini-2.5-flash',
                 contents: { parts },
                 config: {
                     responseMimeType: 'application/json',

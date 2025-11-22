@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Type, Part } from "@google/genai";
 import { useApp } from '../App';
@@ -201,7 +200,7 @@ const SlideGenerator: React.FC = () => {
             };
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
+                model: 'gemini-2.5-flash',
                 contents: { parts },
                 config: {
                     responseMimeType: 'application/json',

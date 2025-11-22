@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Type, Modality } from '@google/genai';
 import { useApp } from '../App';
@@ -303,7 +302,7 @@ const LearningPath: React.FC = () => {
             };
             
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
+                model: 'gemini-2.5-flash',
                 contents: prompt,
                  config: {
                     responseMimeType: 'application/json',

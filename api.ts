@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { User, AdminUser, AdminRole } from './types';
 
@@ -16,33 +15,17 @@ const DEFAULT_ADMIN: AdminUser = {
 };
 
 // --- Centralized AI Instance ---
-const getApiKey = () => {
-    let key = '';
-    // Try Vite's import.meta.env first (Client-side)
-    try {
-        // @ts-ignore
-        if (import.meta.env?.VITE_API_KEY) {
-            // @ts-ignore
-            return import.meta.env.VITE_API_KEY;
-        }
-         // @ts-ignore
-        if (import.meta.env?.API_KEY) {
-             // @ts-ignore
-            return import.meta.env.API_KEY;
-        }
-    } catch (e) {}
+let apiKey = '';
+try {
+    // Safely attempt to access process.env.API_KEY. 
+    // This allows Vite/Webpack to replace it at build time if configured, 
+    // while preventing a ReferenceError if process is not defined in the browser.
+    apiKey = process.env.API_KEY || '';
+} catch (e) {
+    console.warn("process.env.API_KEY is not defined");
+}
 
-    // Fallback to process.env (Node.js / Defined by Bundler)
-    try {
-        if (typeof process !== 'undefined' && process.env?.API_KEY) {
-            return process.env.API_KEY;
-        }
-    } catch (e) {}
-    
-    return key;
-};
-
-export const ai = new GoogleGenAI({ apiKey: getApiKey() });
+export const ai = new GoogleGenAI({ apiKey });
 
 // --- Local Storage Helpers ---
 
