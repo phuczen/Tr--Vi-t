@@ -1,17 +1,24 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useApp } from '../App';
 import { UserRole } from '../types';
-import Summarizer from './Summarizer';
-import ExamGenerator from './ExamGenerator';
-import Chatbot from './Chatbot';
-import Translator from './Translator';
-import SlideGenerator from './SlideGenerator';
-import LearningPath from './LearningPath';
-import QuestionAnalysis from './QuestionAnalysis';
-import Library from './Library';
-import SafetyGuide from './SafetyGuide';
 
+// Lazy load components to reduce initial bundle size and fix "chunk larger than 500kB" warning
+const Summarizer = React.lazy(() => import('./Summarizer'));
+const ExamGenerator = React.lazy(() => import('./ExamGenerator'));
+const Chatbot = React.lazy(() => import('./Chatbot'));
+const Translator = React.lazy(() => import('./Translator'));
+const SlideGenerator = React.lazy(() => import('./SlideGenerator'));
+const LearningPath = React.lazy(() => import('./LearningPath'));
+const QuestionAnalysis = React.lazy(() => import('./QuestionAnalysis'));
+const Library = React.lazy(() => import('./Library'));
+const SafetyGuide = React.lazy(() => import('./SafetyGuide'));
+
+const LoadingSpinner = () => (
+    <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+    </div>
+);
 
 const MainLayout: React.FC = () => {
     const { t, userRole, studentGoal, handleGoHome, logActivity } = useApp();
@@ -31,18 +38,24 @@ const MainLayout: React.FC = () => {
     }, [activeTab, t]);
 
     const renderContent = () => {
-        switch (activeTab) {
-            case 'summarizer': return <Summarizer />;
-            case 'exam_generator': return <ExamGenerator />;
-            case 'ai_assistant': return <Chatbot />;
-            case 'translator': return <Translator />;
-            case 'slide_generator': return <SlideGenerator />;
-            case 'learning_path': return <LearningPath />;
-            case 'question_analysis': return <QuestionAnalysis />;
-            case 'library': return <Library />;
-            case 'safety_guide': return <SafetyGuide />;
-            default: return null;
-        }
+        return (
+            <Suspense fallback={<LoadingSpinner />}>
+                {(() => {
+                    switch (activeTab) {
+                        case 'summarizer': return <Summarizer />;
+                        case 'exam_generator': return <ExamGenerator />;
+                        case 'ai_assistant': return <Chatbot />;
+                        case 'translator': return <Translator />;
+                        case 'slide_generator': return <SlideGenerator />;
+                        case 'learning_path': return <LearningPath />;
+                        case 'question_analysis': return <QuestionAnalysis />;
+                        case 'library': return <Library />;
+                        case 'safety_guide': return <SafetyGuide />;
+                        default: return null;
+                    }
+                })()}
+            </Suspense>
+        );
     };
 
     return (
